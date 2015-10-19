@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>KCipher2 stream cipher</title>
+    
+    <link rel="stylesheet" href="http://www.w3.org/TR/WebCryptoAPI/webcrypto.css" type="text/css" />
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          specStatus: "WD",
+          shortName:  "kcipher2",
+          editors: [
+                {   name:       "Anirban Basu",
+                	mailto:     "basu@kddilabs.jp",
+                    url:        "http://abasu.xtremebytes.com/",
+                    company:    "KDDI R&D Labs",
+                    companyURL: "http://www.kddilabs.jp/english" },
+                {   name:       "Shinsaku Kiyomoto",
+                	mailto:     "kiyomoto@kddilabs.jp",
+                	url:        "https://sites.google.com/site/drshinsakukiyomoto/",
+                    company:    "KDDI R&D Labs",
+                    companyURL: "http://www.kddilabs.jp/english" }
+          ],
+          publishDate: "2015-10-19",
+          previousPublishDate: "2015-10-19",
+          previousMaturity: "FPWD",
+          wg:           "Web Crypto Working Group",
+          wgURI:        "http://www.w3.org/web-crypto/",
+          wgPublicList: "web-crypto",
+          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/424242/status",
+          localBiblio:  {
+    		"KCipher2": {
+	        title:    "K2: A Stream Cipher Algorithm using Dynamic Feedback Control",
+	        href:     "http://www.kddilabs.jp/assets/files/seihin/specification.pdf",
+	        date: "July 2007",
+	        authors:  [
+            	"Shinsaku Kiyomoto",
+            	"Toshiaki Tanaka",
+            	"Kouichi Sakurai"
+        	],
+        	publisher:  "SECRYPT",
+    		}
+		}
+      };
+    </script>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+        This document specifies the Javascript interface to [[!KCipher2]], which is a fast and lightweight stream cipher algorithm developed by KDDI R&D Laboratories Inc.
+      </p>
+    </section>
+
+    <section id='sotd'>
+      <p>
+        This is probably the froodiest document that you will read all year. It has
+        been authored using new means of achieving consensus that have been made 
+        possible through nanoethanol implants.
+      </p>
+    </section>
+    
+    <section class='informative'>
+      <h2>Description</h2>
+      <p>
+        The <code>"KCipher2"</code> algorithm identifier is used to perform encryption and decryption using KCipher2, as described in [[KCipher2]].
+      </p>
+    </section>
+    <section>
+      <h2>Registration</h2>
+      <p>The recognized algorithm name for this algorithm is <code>"KCipher2"</code>.</p>
+      <table>
+            <thead>
+              <tr>
+                <th><a data-lt="#supported-operations">Operation</a></th>
+                <th><a data-lt="#algorithm-specific-params">Parameters</a></th>
+                <th><a data-lt="#algorithm-result">Result</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>encrypt</td>
+                <td><a>K2KeyCipherParameters</a></td>
+                <td>ArrayBuffer</td>
+              </tr>
+              <tr>
+                <td>decrypt</td>
+                <td><a>K2KeyCipherParameters</a></td>
+                <td>ArrayBuffer</td>
+              </tr>
+              <tr>
+                <td>generateKey</td>
+                <td><a>K2KeyGenParameters</a></td>
+                <td><a>CryptoKey</a></td>
+              </tr>
+              <tr>
+                <td>importKey</td>
+                <td>None</td>
+                <td><a>CryptoKey</a></td>
+              </tr>
+              <tr>
+                <td>exportKey</td>
+                <td>None</td>
+                <td>object</td>
+              </tr>
+              <tr>
+                <td>get key length</td>
+                <td><a>K2DerivedKeyParameters</a></td>
+                <td>Integer</td>
+              </tr>
+            </tbody>
+          </table>
+    </section>
+    
+    <section>
+    <h2>Parameters</h2>
+		<section>
+		<h2>K2CipherParameters dictionary</h2>
+		
+		<section>
+		<h2>K2KeyCipherParameters dictionary</h2>
+		  <p>
+			<pre class="idl">
+			dictionary <dfn>K2KeyCipherParameters</dfn> : <a>Algorithm</a> {
+			// The initialization vector. MUST be 16 bytes.
+			required BufferSource <dfn>iv</dfn>;
+			};
+			</pre>
+		  </p>
+		</section>
+	
+		<section>
+		<h2>K2KeyGenParameters dictionary</h2>
+		  <p>
+			<pre class="idl">
+			dictionary <dfn>K2KeyGenParameters</dfn> : <a>Algorithm</a> {
+			// The length, in bits, of the key.
+			[EnforceRange] required unsigned short <a>length</a>;
+			};
+			</pre>
+		  </p>
+		</section>
+	
+		<section>
+		<h2>K2DerivedKeyParameters</h2>
+		  <p>
+			<pre class="idl">
+			dictionary <dfn>K2DerivedKeyParameters</dfn> : <a>Algorithm</a> {
+			// The length, in bits, of the key.
+			[EnforceRange] required unsigned short <a>length</a>;
+			};
+			</pre>
+		  </p>
+		</section>
+	</section>
+    
+    <section>
+    <h2>Operations</h2>
+    	<section>
+    		<h2>Encrypt</h2>
+    		<p>
+    			<ol>
+    				<li>If the <a>iv</a> member of <var>normalizedAlgorithm</var> does not have length 16 bytes, then <a data-lt="concept-throw">throw</a> an <a><code>OperationError</code></a>.</li>
+					<li>Let <var>ciphertext</var> be the result of performing the Encryption operation described in [[KCipher2]] using KCipher2 as the stream cipher, the contents of the <a>iv</a> member of <var>normalizedAlgorithm</var> as the IV input parameter and <var>plaintext</var> as the input plaintext.</li>
+					<li>Return <var>ciphertext</var>.</li>
+    			</ol>
+    		</p>
+    	</section>
+    	<section>
+    		<h2>Decrypt</h2>
+    		<p>
+    			<ol>
+    				<li>If the <a>iv</a> member of <var>normalizedAlgorithm</var> does not have length 16 bytes, then <a data-lt="concept-throw">throw</a> an <a><code>OperationError</code></a>.</li>
+					<li>Let <var>plaintext</var> be the result of performing the Decryption operation described in [[KCipher2]] using KCipher2 as the stream cipher, the contents of the <a>iv</a> member of <var>normalizedAlgorithm</var> as the IV input parameter and <var>ciphertext</var> as the input ciphertext.</li>
+					<li>Return <var>plaintext</var>.</li>
+    			</ol>
+    		</p>
+    	</section>
+    	<section>
+    		<h2>Generate Key</h2>
+    		<p>
+    			<ol>
+    				<li>If <var>usages</var> contains any entry which is not one of <code>"encrypt"</code>, <code>"decrypt"</code>, <code>"wrapKey"</code> or <code>"unwrapKey"</code>, then <a data-lt="concept-throw">throw</a> a <a><code>SyntaxError</code></a>.</li>
+    				<li>If the <a>length</a> member of <var>normalizedAlgorithm</var> is not equal to one of 128, 192 or 256, then <a data-lt="concept-throw">throw</a> an <a>OperationError</a>.</li>
+    				<li>Generate a KCipher2 key of length equal to the <a>length</a> member of <var>normalizedAlgorithm</var>.</li>
+    				<li>If the key generation step fails, then <a data-lt="concept-throw">throw</a> an <a><code>OperationError</code></a>.</li>
+    				<li>Let <var>key</var> be a new <a>CryptoKey</a> object representing the generated KCipher2 key.</li>
+    				<li>Let <var>algorithm</var> be a new <a>K2KeyAlgorithm</a>.</li>
+					<li>Set the <a>name</a> attribute of <var>algorithm</var> to <code>"KCipher2"</code>.</li>
+					<li>Set the <a>length</a> attribute of <var>algorithm</var> to equal the <a>length</a> member of <var>normalizedAlgorithm</var>.</li>
+					<li>Set the [<a>algorithm</a>] internal slot of <var>key</var> to <var>algorithm</var>.</li>
+					<li>Set the [<a>extractable</a>] internal slot of <var>key</var> to be <var>extractable</var>.</li>
+					<li>Set the [<a>usages</a>] internal slot of <var>key</var> to be <var>usages</var>.</li>
+					<li>Return <var>key</var>.</li>
+    			</ol>
+    		</p>
+    	</section>
+    	<section>
+    		<h2>Import Key</h2>
+    		<dd>
+    			<ol>
+                <li>
+                  <p>
+                    If <var>usages</var> contains an entry which is not one of <code>"encrypt"</code>, <code>"decrypt"</code>, <code>"wrapKey"</code> or <code>"unwrapKey"</code>, then <a data-lt="concept-throw">throw</a> a <a><code>SyntaxError</code></a>.
+                  </p>
+                </li>
+                <li>
+                  <dl class="switch">
+                    <dt>If <var>format</var> is <code>"raw"</code>:</dt>
+                    <dd>
+                      <ol>
+                        <li>
+                          <p>
+                            Let <var>data</var> be the <a>octet string</a> contained in <var>keyData</var>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            If the length in bits of <var>data</var> is not 128, 192 or 256, then <a data-lt="concept-throw">throw</a> an <a><code>OperationError</code></a>.
+                          </p>
+                        </li>
+                      </ol>
+                    </dd>
+                    <dt>If <var>format</var> is <code>"jwk"</code>:</dt>
+                    <dd>
+                      <ol>
+                        <li>
+                          <p>
+                            Let <var>jwk</var> be the <a>JsonWebKey</a> dictionary represented by <var>keyData</var>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            If the <code>"kty"</code> field of <var>jwk</var> is not <code>"oct"</code>, then <a data-lt="concept-throw">throw</a> a <a><code>DataError</code></a>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>If <var>jwk</var> does not meet the requirements of Section 6.4 of <a data-lt="jwa">JSON Web Algorithms</a>, then <a data-lt="concept-throw">throw</a> n <a><code>DataError</code></a>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>Let <var>data</var> be the <a>octet string</a> obtained by decoding the <code>"k"</code> field of <var>jwk</var>.
+                          </p>
+                        </li>
+                        <li>
+                          <dl class="switch">
+                            <dt>If <var>data</var> has length 128 bits:</dt>
+                            <dd>
+                              If the <code>"alg"</code> field of <var>jwk</var> is present, and is not <code>"KC128"</code>, then <a data-lt="concept-throw">throw</a> a <a><code>DataError</code></a>.
+                            </dd>
+                            <dt>If <var>data</var> has length 192 bits:</dt>
+                            <dd>
+                              If the <code>"alg"</code> field of <var>jwk</var> is present, and is not <code>"KC192"</code>, then <a data-lt="concept-throw">throw</a> a <a><code>DataError</code></a>.
+                            </dd>
+                            <dt>If <var>data</var> has length 256 bits:</dt>
+                            <dd>
+                              If the <code>"alg"</code> field of <var>jwk</var> is present, and is not <code>"KC256"</code>, then <a data-lt="concept-throw">throw</a> a <a><code>DataError</code></a>.
+                            </dd>
+                            <dt>Otherwise:</dt>
+                            <dd>
+                              <a data-lt="concept-throw">throw</a> an<a><code>DataError</code></a></dd>
+                          </dl>
+                        </li>
+                        <li>
+                          <p>
+                            If the <code>"use"</code> field of <var>jwk</var> is present, and is not <code>"enc"</code>, then <a data-lt="concept-throw">throw</a> a <a><code>DataError</code></a>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            If the <code>"key_ops"</code> field of <var>jwk</var> is present, and
+                            is invalid according to the requirements of
+                            <a data-lt="jwk">JSON Web Key</a> or
+                            does not contain all of the specified <var>usages</var> values, then <a data-lt="concept-throw">throw</a> a <a><code>DataError</code></a>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            If the <code>"ext"</code> field of <var>jwk</var> is present and has the value false and <var>extractable</var> is true, then <a data-lt="concept-throw">throw</a> a <a><code>DataError</code></a>.
+                          </p>
+                        </li>
+                      </ol>
+                    </dd>
+                    <dt>Otherwise:</dt>
+                    <dd>
+                      <a data-lt="concept-throw">throw</a> a <a><code>NotSupportedError</code></a>.
+                    </dd>
+                  </dl>
+                </li>
+                <li>
+                  <p>
+                    Let <var>key</var> be a new <code><a>CryptoKey</a></code> object representing a KCipher2 key with value <var>data</var>.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Let <var>algorithm</var> be a new
+                    <a>K2KeyAlgorithm</a>.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Set the <a>name</a> attribute of <var>algorithm</var> to <code>"KCipher2"</code>.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Set the <a>length</a> attribute of
+                    <var>algorithm</var> to the length, in bits, of <var>data</var>.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Set the [<a>algorithm</a>] internal
+                    slot of <var>key</var> to <var>algorithm</var>.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Return <var>key</var>.
+                  </p>
+                </li>
+              </ol>
+    		</dd>
+    	</section>
+    	<section>
+    		<h2>Export Key</h2>
+    		<dd>
+    		<ol>
+                <li>
+                  <p>
+                    If the underlying cryptographic key material represented by the [<a>handle</a>] internal slot of <var>key</var> cannot be accessed, then <a data-lt="concept-throw">throw</a> an <a><code>OperationError</code></a>.
+                  </p>
+                </li>
+                <li>
+                  <dl class="switch">
+                    <dt>If <var>format</var> is <code>"raw"</code>:</dt>
+                    <dd>
+                      <ol>
+                        <li>
+                          <p>
+                            Let <var>data</var> be the raw octets of the key represented by [<a>handle</a>] internal slot of
+                            <var>key</var>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            Let <var>result</var> be a new <code>ArrayBuffer</code> containing
+                            <var>data</var>.
+                          </p>
+                        </li>
+                      </ol>
+                    </dd>
+                    <dt>If <var>format</var> is <code>"jwk"</code>:</dt>
+                    <dd>
+                      <ol>
+                        <li>
+                          <p>
+                            Let <var>jwk</var> be a new <a>JsonWebKey</a>
+                            dictionary.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            Set the <code>kty</code> attribute of <var>jwk</var> to the
+                            string <code>"oct"</code>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            Set the <code>k</code> attribute of <var>jwk</var> to be a string
+                            containing the raw octets of the key represented by [<a>handle</a>] internal slot of
+                            <var>key</var>, encoded according to Section 6.4 of <a data-lt="jwa">JSON Web Algorithms</a>.
+                          </p>
+                        </li>
+                        <li>
+                          <dl class="switch">
+                            <dt>If the <a>length</a> attribute of
+                            <var>key</var> is 128:</dt>
+                            <dd>Set the <code>alg</code> attribute of <var>jwk</var> to
+                            the string <code>"KC128"</code>.</dd>
+                            <dt>If the <a>length</a> attribute of
+                            <var>key</var> is 192:</dt>
+                            <dd>Set the <code>alg</code> attribute of <var>jwk</var> to
+                            the string <code>"KC192"</code>.</dd>
+                            <dt>If the <a>length</a> attribute of
+                            <var>key</var> is 256:</dt>
+                            <dd>Set the <code>alg</code> attribute of <var>jwk</var> to
+                            the string <code>"KC256"</code>.</dd>
+                          </dl>
+                        </li>
+                        <li>
+                          <p>
+                            Set the <code>key_ops</code> attribute of <var>jwk</var> to equal the
+                            [<a>usages</a>] internal slot of
+                            <var>key</var>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            Set the <code>ext</code> attribute of <var>jwk</var> to equal the [<a>extractable</a>] internal slot
+                            of <var>key</var>.
+                          </p>
+                        </li>
+                        <li>
+                          <p>
+                            Let <var>result</var> be the result of converting <var>jwk</var> to an ECMAScript Object, as defined by [<a>WebIDL</a>].
+                          </p>
+                        </li>
+                      </ol>
+                    </dd>
+                    <dt>Otherwise:</dt>
+                    <dd>
+                      <p>
+                        <a data-lt="concept-throw">throw</a> a <a><code>NotSupportedError</code></a>.
+                      </p>
+                    </dd>
+                  </dl>
+                </li>
+                <li>
+                  <p>
+                    Return <var>result</var>.
+                  </p>
+                </li>
+              </ol>
+    		</dd>
+    	</section>
+    	<section>
+    		<h2>Get Key Length</h2>
+    		<p>
+    		<ol>
+    			<li>If the <a>length</a> member of <var>normalizedDerivedKeyAlgorithm</var> is not equal to one of 128, 192 or 256, then <a data-lt="concept-throw">throw</a> an <a>OperationError</a>.</li>
+    			<li>Return the <a>length</a> member of the <var>normalizedDerivedKeyAlgorithm</var>.</li>
+    		</ol>
+	        </p>
+    	</section>
+    </section>
+    
+    
+    <!--
+    <section class='appendix'>
+      <h2>Acknowledgements</h2>
+      <p>
+        I would like to thank all the people who have patched ReSpec over the
+        years and helped turn it into a really cool tool!
+      </p>
+    </section>
+    
+    <section id='tof'></section>
+    -->
+    
+  </body>
+</html>
