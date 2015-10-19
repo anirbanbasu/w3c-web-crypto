@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>KCipher2 stream cipher</title>
+    <title>KCipher-2 stream cipher</title>
     
     <link rel="stylesheet" href="http://www.w3.org/TR/WebCryptoAPI/webcrypto.css" type="text/css" />
     <meta charset='utf-8'>
@@ -10,7 +10,7 @@
     <script class='remove'>
       var respecConfig = {
           specStatus: "WD",
-          shortName:  "kcipher2",
+          shortName:  "K2",
           editors: [
                 {   name:       "Anirban Basu",
                 	mailto:     "basu@kddilabs.jp",
@@ -64,7 +64,7 @@
     <section class='informative'>
       <h2>Description</h2>
       <p>
-        The <code>"KCipher2"</code> algorithm identifier is used to perform encryption and decryption using KCipher2, as described in [[KCipher2]].
+        The <code>"KCipher2"</code> algorithm identifier is used to perform encryption and decryption using KCipher-2, as described in [[KCipher2]].
       </p>
     </section>
     <section>
@@ -162,7 +162,7 @@
     		<p>
     			<ol>
     				<li>If the <a>iv</a> member of <var>normalizedAlgorithm</var> does not have length 16 bytes, then <a data-lt="concept-throw">throw</a> an <a><code>OperationError</code></a>.</li>
-					<li>Let <var>ciphertext</var> be the result of performing the Encryption operation described in [[KCipher2]] using KCipher2 as the stream cipher, the contents of the <a>iv</a> member of <var>normalizedAlgorithm</var> as the IV input parameter and <var>plaintext</var> as the input plaintext.</li>
+					<li>Let <var>ciphertext</var> be the result of performing the Encryption operation described in [[KCipher2]] using KCipher-2 as the stream cipher, the contents of the <a>iv</a> member of <var>normalizedAlgorithm</var> as the IV input parameter and <var>plaintext</var> as the input plaintext.</li>
 					<li>Return <var>ciphertext</var>.</li>
     			</ol>
     		</p>
@@ -172,7 +172,7 @@
     		<p>
     			<ol>
     				<li>If the <a>iv</a> member of <var>normalizedAlgorithm</var> does not have length 16 bytes, then <a data-lt="concept-throw">throw</a> an <a><code>OperationError</code></a>.</li>
-					<li>Let <var>plaintext</var> be the result of performing the Decryption operation described in [[KCipher2]] using KCipher2 as the stream cipher, the contents of the <a>iv</a> member of <var>normalizedAlgorithm</var> as the IV input parameter and <var>ciphertext</var> as the input ciphertext.</li>
+					<li>Let <var>plaintext</var> be the result of performing the Decryption operation described in [[KCipher2]] using KCipher-2 as the stream cipher, the contents of the <a>iv</a> member of <var>normalizedAlgorithm</var> as the IV input parameter and <var>ciphertext</var> as the input ciphertext.</li>
 					<li>Return <var>plaintext</var>.</li>
     			</ol>
     		</p>
@@ -183,9 +183,9 @@
     			<ol>
     				<li>If <var>usages</var> contains any entry which is not one of <code>"encrypt"</code>, <code>"decrypt"</code>, <code>"wrapKey"</code> or <code>"unwrapKey"</code>, then <a data-lt="concept-throw">throw</a> a <a><code>SyntaxError</code></a>.</li>
     				<li>If the <a>length</a> member of <var>normalizedAlgorithm</var> is not equal to one of 128, 192 or 256, then <a data-lt="concept-throw">throw</a> an <a>OperationError</a>.</li>
-    				<li>Generate a KCipher2 key of length equal to the <a>length</a> member of <var>normalizedAlgorithm</var>.</li>
+    				<li>Generate a KCipher-2 key of length equal to the <a>length</a> member of <var>normalizedAlgorithm</var>.</li>
     				<li>If the key generation step fails, then <a data-lt="concept-throw">throw</a> an <a><code>OperationError</code></a>.</li>
-    				<li>Let <var>key</var> be a new <a>CryptoKey</a> object representing the generated KCipher2 key.</li>
+    				<li>Let <var>key</var> be a new <a>CryptoKey</a> object representing the generated KCipher-2 key.</li>
     				<li>Let <var>algorithm</var> be a new <a>K2KeyAlgorithm</a>.</li>
 					<li>Set the <a>name</a> attribute of <var>algorithm</var> to <code>"KCipher2"</code>.</li>
 					<li>Set the <a>length</a> attribute of <var>algorithm</var> to equal the <a>length</a> member of <var>normalizedAlgorithm</var>.</li>
@@ -290,7 +290,7 @@
                 </li>
                 <li>
                   <p>
-                    Let <var>key</var> be a new <code><a>CryptoKey</a></code> object representing a KCipher2 key with value <var>data</var>.
+                    Let <var>key</var> be a new <code><a>CryptoKey</a></code> object representing a KCipher-2 key with value <var>data</var>.
                   </p>
                 </li>
                 <li>
