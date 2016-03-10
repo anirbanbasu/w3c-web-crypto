@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ring-LWE post-quantum PKI</title>
+    
+    <link rel="stylesheet" href="http://www.w3.org/TR/WebCryptoAPI/webcrypto.css" type="text/css" />
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          specStatus: "WD",
+          shortName:  "RLWE",
+          editors: [
+                {   name:       "Anirban Basu",
+                	mailto:     "basu@kddilabs.jp",
+                    url:        "http://abasu.xtremebytes.com/",
+                    company:    "KDDI R&D Labs",
+                    companyURL: "http://www.kddilabs.jp/english" },
+                {   name:       "Kazuhide Fukushima",
+                	mailto:     "ka-fukushima@kddilabs.jp",
+                    company:    "KDDI R&D Labs",
+                    companyURL: "http://www.kddilabs.jp/english" },
+                {   name:       "Rui Xu",
+                	mailto:     "ru-xu@kddilabs.jp",
+                    company:    "KDDI R&D Labs",
+                    companyURL: "http://www.kddilabs.jp/english" },
+                {   name:       "Shinsaku Kiyomoto",
+                	mailto:     "kiyomoto@kddilabs.jp",
+                	url:        "https://sites.google.com/site/drshinsakukiyomoto/",
+                    company:    "KDDI R&D Labs",
+                    companyURL: "http://www.kddilabs.jp/english" }
+          ],
+          publishDate: "2016-03-10",
+          previousPublishDate: "2016-03-10",
+          previousMaturity: "FPWD",
+          wg:           "Web Crypto Working Group",
+          wgURI:        "http://www.w3.org/web-crypto/",
+          wgPublicList: "web-crypto",
+          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/424242/status",
+          localBiblio:  {
+    		"RingLWEImplementationKyushu": {
+	        title:    "Portable Implementation of Lattice-based Cryptography using JavaScript",
+	        date: "December 2015",
+	        authors:  [
+            	"Ye Yuan",
+            	"Chen-Mou Cheng",
+            	"Shinsaku Kiyomoto",
+            	"Yutaka Miyake",
+            	"Tsuyoshi Takagi"
+        	],
+        	publisher:  "CANDAR",
+    		},
+    		"RingLWE": {
+	        title:    "Better Key Sizes (and Attacks) for LWE-based Encryption",
+	        date: "February 2011",
+	        authors:  [
+            	"Richard Lindner",
+            	"Chris Peikert"
+        	],
+        	publisher:  "CT-RSA",
+    		},
+    		"RSADraft": {
+	        title:    "RSA OAEP Draft",
+	        date: "March 2016",
+	        href: "https://www.w3.org/TR/WebCryptoAPI/#rsa-oaep",
+	        authors:  [
+            	"W3C"
+        	],
+        	publisher:  "W3C",
+    		}
+		}
+      };
+    </script>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+        This document specifies the Javascript interface to [[!RingLWE]], which is a fast and post-quantum public key cryptosystem jointly implemented by KDDI R&D Laboratories and Kyushu University.
+      </p>
+    </section>
+
+    <section id='sotd'>
+      <p>
+        This document is in a <strong>very draft</strong> stage. It needs to be updated with appropriate key parameters for the Ring-LWE cryptosystem, for which the W3C WebCryto specifications may or may not be sufficient. Once it is updated, the status of this document will be set to waiting for implementations of Ring-LWE from UserAgent vendors.
+      </p>
+    </section>
+    
+    <section class='informative'>
+      <h2>Description</h2>
+      <p>
+        The <code>"RLWE"</code> algorithm identifier is used to perform encryption and decryption using Ring-LWE, as described in [[RingLWE]].
+      </p>
+    </section>
+    <section>
+      <h2>Registration</h2>
+      <p>The recognized algorithm name for this algorithm is <code>"RLWE"</code>.</p>
+      <table>
+            <thead>
+              <tr>
+                <th><a data-lt="#supported-operations">Operation</a></th>
+                <th><a data-lt="#algorithm-specific-params">Parameters</a></th>
+                <th><a data-lt="#algorithm-result">Result</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>encrypt</td>
+                <td><a>RLWEEncryptionParameters</a></td> <!-- Message m; public key -->
+                <td>ArrayBuffer</td> <!-- Two ring elements: integer elements array -->
+              </tr>
+              <tr>
+                <td>decrypt</td>
+                <td><a>RLWEDecryptionParameters</a></td> <!-- Ciphertext: Two ring elements: integer elements array -->
+                <td>ArrayBuffer</td> <!-- Message m -->
+              </tr>
+              <tr>
+                <td>generateKey</td>
+                <td><a>RLWEKeyGenParameters</a></td> <!-- Dimension n; Modulo q; Standard distribution of error s; -->
+                <td><a>CryptoKeyPair</a></td> <!-- Public key, two ring elements: (a, b) (20480 bits); Private key, one ring element: (r_2) (10240 bits) -->
+              </tr>
+              <tr>
+                <td>importKey</td>
+                <td>None</td>
+                <td><a>CryptoKey</a></td>
+              </tr>
+              <tr>
+                <td>exportKey</td>
+                <td>None</td>
+                <td>object</td>
+              </tr>
+            </tbody>
+          </table>
+    </section>
+    
+    <section>
+    <h2>Parameters</h2>
+		<section>
+		<h2>RLWEEncryptionParameters dictionary</h2>
+		
+		<section>
+		<h2>RLWEDecryptionParameters dictionary</h2>
+		  <p>
+			<pre class="idl">
+			dictionary <dfn>RLWEDecryptionParameters</dfn> : <a>Algorithm</a> {
+			required BufferSource <dfn>ciphertext</dfn>; <!-- two ring elements -->
+			};
+			</pre>
+		  </p>
+		</section>
+	
+		<section>
+		<h2>RLWEKeyGenParameters dictionary</h2>
+		  <p>
+			<pre class="idl">
+			dictionary <dfn>RLWEKeyGenParameters</dfn> : <a>Algorithm</a> {
+			[EnforceRange] required unsigned short <a>dimension</a>;
+			[EnforceRange] required unsigned long <a>modulo</a>;
+			[EnforceRange] required double <a>error</a>;
+			};
+			</pre>
+		  </p>
+		</section>
+	</section>
+    
+    <section>
+    <h2>Operations</h2>
+    	<section>
+    		<h2>Encrypt</h2>
+    		<p>
+    			<ol>
+    				<li>If the <a>type</a> member of <var>public</var> then <a data-lt="concept-throw">throw</a> an <a><code>InvalidAccessError</code></a>.</li>
+					<li>Let <var>ciphertext</var> be the result of performing the Encryption operation described in [[RingLWE]] using Ring-LWE as the cryptosystem and <var>plaintext</var> as the input plaintext.</li>
+					<li>Return <var>ciphertext</var>.</li>
+    			</ol>
+    		</p>
+    	</section>
+    	<section>
+    		<h2>Decrypt</h2>
+    		<p>
+    			<ol>
+    				<li>If the <a>type</a> member of <var>private</var> then <a data-lt="concept-throw">throw</a> an <a><code>InvalidAccessError</code></a>.</li>
+					<li>Let <var>plaintext</var> be the result of performing the Decryption operation described in [[RingLWE]] using Ring-LWE as the cryptosystem and <var>ciphertext</var> as the input ciphertext.</li>
+					<li>Return <var>plaintext</var>.</li>
+    			</ol>
+    		</p>
+    	</section>
+    	<section>
+    		<h2>Generate Key</h2>
+    		<p>
+    			<ol>
+    				<li>See notes in the HTML document. To be updated.</li>
+    			</ol>
+    		</p>
+    	</section>
+    	<section>
+    		<h2>Import Key</h2>
+    		<dd>
+    			<ol>
+                <li>
+                  To be updated according to [[!RSADraft]].</li>
+    		</ol>
+	        </p>
+    	</section>
+    </section>
+    
+    
+    <!--
+    <section class='appendix'>
+      <h2>Acknowledgements</h2>
+      <p>
+        I would like to thank all the people who have patched ReSpec over the
+        years and helped turn it into a really cool tool!
+      </p>
+    </section>
+    
+    <section id='tof'></section>
+    -->
+    
+  </body>
+</html>
